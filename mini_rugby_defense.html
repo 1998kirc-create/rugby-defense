@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ミニラグビー ディフェンス解説動画</title>
+<style>
+  :root {
+    --field-green: #2d8a3e;
+    --field-green-dark: #1f6b2c;
+    --field-line: #ffffff;
+    --accent-yellow: #ffd93d;
+    --accent-red: #ff4757;
+    --accent-blue: #3498db;
+    --bg-dark: #0f1f15;
+    --text-light: #ffffff;
+    --text-dark: #1a2e1f;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Hiragino Maru Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-light);
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  .video-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: linear-gradient(180deg, #1a3a24 0%, #0f1f15 100%);
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* ヘッダー */
+  .header {
+    background: linear-gradient(135deg, var(--field-green-dark), var(--field-green));
+    padding: 30px 20px;
+    text-align: center;
+    border-bottom: 4px solid var(--accent-yellow);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: 
+      linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px),
+      linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+
+  .header h1 {
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    margin-bottom: 8px;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+    position: relative;
+  }
+
+  .header p {
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    opacity: 0.9;
+    position: relative;
+  }
+
+  /* 再生コントロール */
+  .controls {
+    background: rgba(0,0,0,0.4);
+    padding: 15px 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    border-bottom: 2px solid var(--field-green);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+  }
+
+  .btn {
+    background: var(--accent-yellow);
+    color: var(--text-dark);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+
+  .btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(255,217,61,0.4);
+  }
+
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    background: rgba(255,255,255,0.15);
+    color: white;
+  }
+
+  .progress-bar {
+    flex: 1;
+    min-width: 150px;
+    height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-yellow), var(--accent-red));
+    width: 0%;
+    transition: width 0.3s;
+  }
+
+  .chapter-label {
+    font-size: 0.85rem;
+    opacity: 0.8;
+    min-width: 80px;
+  }
+
+  /* メインステージ */
+  .stage {
+    padding: 30px 20px;
+    min-height: 500px;
+  }
+
+  .scene {
+    display: none;
+    animation: fadeIn 0.6s ease;
+  }
+
+  .scene.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .scene-title {
+    font-size: clamp(1.3rem, 4vw, 1.8rem);
+    color: var(--accent-yellow);
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: bold;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+  }
+
+  .scene-number {
+    display: inline-block;
+    background: var(--accent-red);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    line-height: 40px;
+    text-align: center;
+    margin-right: 10px;
+    font-weight: bold;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+  }
+
+  /* フィールド */
+  .field {
+    background: linear-gradient(180deg, #3aa64f 0%, #2d8a3e 100%);
+    border: 3px solid white;
+    border-radius: 8px;
+    aspect-ratio: 16 / 9;
+    position: relative;
+    margin: 20px 0;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+
+  .field::before {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 50%;
+    width: 2px;
+    background: rgba(255,255,255,0.4);
+    transform: translateX(-50%);
+  }
+
+  /* オフサイドライン */
+  .offside-line {
+    position: absolute;
+    top: 5%;
+    bottom: 5%;
+    width: 0;
+    border-left: 3px dashed var(--accent-yellow);
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 0 10px rgba(255,217,61,0.6);
+  }
+
+  .offside-label {
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent-yellow);
+    color: var(--text-dark);
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    white-space: nowrap;
+  }
+
+  /* 選手 */
+  .player {
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 2.5px solid white;
+    transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 0.7rem;
+  }
+
+  /* 大きいフィールド(単独表示)では選手も大きく */
+  .field:not(.compact) .player {
+    width: 28px;
+    height: 28px;
+  }
+
+  .player.defense {
+    background: var(--accent-blue);
+  }
+
+  .player.offense {
+    background: var(--accent-red);
+  }
+
+  .player.with-ball::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 9px;
+    background: #8B4513;
+    border-radius: 50%;
+    bottom: -7px;
+    right: -7px;
+    border: 2px solid white;
+  }
+
+  .player.highlight {
+    box-shadow: 0 0 0 6px rgba(255,217,61,0.6), 0 4px 8px rgba(0,0,0,0.3);
+    animation: pulse 1s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+  }
+
+  /* ノミネートの線 */
+  .nominate-line {
+    position: absolute;
+    height: 2px;
+    background: var(--accent-yellow);
+    transform-origin: left center;
+    opacity: 0;
+    transition: opacity 0.5s;
+    pointer-events: none;
+    box-shadow: 0 0 8px var(--accent-yellow);
+  }
+
+  .nominate-line.show {
+    opacity: 0.8;
+  }
+
+  /* スピーチバブル */
+  .speech-bubble {
+    position: absolute;
+    background: white;
+    color: var(--text-dark);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  }
+
+  .speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 20px;
+    border: 6px solid transparent;
+    border-top-color: white;
+  }
+
+  .speech-bubble.show {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* ナレーションキャプション */
+  .caption {
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(10px);
+    border-left: 4px solid var(--accent-yellow);
+    padding: 16px 20px;
+    margin-top: 20px;
+    border-radius: 8px;
+    font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+    line-height: 1.7;
+    min-height: 80px;
+  }
+
+  .caption-coach {
+    display: inline-block;
+    background: var(--accent-yellow);
+    color: var(--text-dark);
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+
+  /* ラベル */
+  .scene-label {
+    position: absolute;
+    top: 10px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    backdrop-filter: blur(5px);
+  }
+
+  .scene-label.bad { left: 10px; background: rgba(255,71,87,0.8); }
+  .scene-label.good { left: 10px; background: rgba(46,213,115,0.8); }
+
+  /* タイトルカード */
+  .title-card {
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .title-card .big-number {
+    font-size: clamp(4rem, 12vw, 7rem);
+    color: var(--accent-yellow);
+    font-weight: 900;
+    line-height: 1;
+    text-shadow: 4px 4px 0 rgba(0,0,0,0.3);
+    margin-bottom: 10px;
+  }
+
+  .title-card h2 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    margin-bottom: 20px;
+  }
+
+  .title-card .subtitle {
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    opacity: 0.8;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  /* 比較ビュー(横並び・小さめ) */
+  .comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 20px 0;
+  }
+
+  @media (max-width: 600px) {
+    .comparison {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .comparison .field {
+    margin: 0;
+  }
+
+  /* 縦並び・大きい図解(画面幅いっぱい) */
+  .stacked-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 20px 0;
+  }
+
+  .stacked-fields .field {
+    margin: 0;
+    width: 100%;
+    aspect-ratio: 20 / 9;
+  }
+
+  /* 掛け声カード */
+  .voice-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 30px;
+  }
+
+  .voice-card {
+    background: linear-gradient(135deg, var(--field-green-dark), var(--field-green));
+    border: 2px solid var(--accent-yellow);
+    border-radius: 12px;
+    padding: 24px 20px;
+    text-align: center;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .voice-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,217,61,0.2) 0%, transparent 70%);
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(180deg); }
+  }
+
+  .voice-card .voice-text {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    color: var(--accent-yellow);
+    font-weight: bold;
+    margin-bottom: 8px;
+    position: relative;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+  }
+
+  .voice-card .voice-when {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    position: relative;
+  }
+
+  /* チェックリスト */
+  .checklist {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+  }
+
+  .checklist li {
+    background: rgba(255,255,255,0.08);
+    border-left: 4px solid var(--accent-yellow);
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    border-radius: 0 8px 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .checklist .check {
+    background: var(--accent-yellow);
+    color: var(--text-dark);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+
+  /* フッター */
+  .footer {
+    text-align: center;
+    padding: 30px 20px;
+    background: rgba(0,0,0,0.3);
+    border-top: 2px solid var(--field-green);
+    font-size: 0.85rem;
+    opacity: 0.7;
+  }
+
+  /* チャプタータブ */
+  .chapter-tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 10px 20px;
+    background: rgba(0,0,0,0.2);
+    scrollbar-width: thin;
+  }
+
+  .chapter-tab {
+    background: rgba(255,255,255,0.08);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+
+  .chapter-tab.active {
+    background: var(--accent-yellow);
+    color: var(--text-dark);
+    font-weight: bold;
+  }
+
+  .chapter-tab:hover {
+    background: rgba(255,255,255,0.15);
+  }
+
+  .chapter-tab.active:hover {
+    background: var(--accent-yellow);
+  }
+
+  /* ラック表現 */
+  .ruck {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: rgba(139, 69, 19, 0.6);
+    border: 2px solid #8B4513;
+    border-radius: 50%;
+    top: 50%;
+    left: 30%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+  }
+
+  /* 矢印 */
+  .arrow {
+    position: absolute;
+    color: var(--accent-yellow);
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+
+  .arrow.show {
+    opacity: 1;
+  }
+
+  .voice-status {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    padding: 4px 8px;
+  }
+
+  /* 音声設定バー */
+  .voice-controls {
+    background: rgba(0,0,0,0.3);
+    padding: 10px 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.85rem;
+  }
+
+  .voice-label {
+    opacity: 0.85;
+    white-space: nowrap;
+  }
+
+  .voice-select {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    flex: 1;
+    min-width: 150px;
+    max-width: 280px;
+    cursor: pointer;
+  }
+
+  .voice-select option {
+    background: #1a3a24;
+    color: white;
+  }
+
+  .rate-slider {
+    width: 100px;
+    accent-color: var(--accent-yellow);
+    cursor: pointer;
+  }
+
+  .rate-value {
+    min-width: 40px;
+    text-align: center;
+    font-weight: bold;
+    color: var(--accent-yellow);
+  }
+
+  .btn-mini {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+</style>
+</head>
+<body>
+<div class="video-container">
+
+  <!-- ヘッダー -->
+  <div class="header">
+    <h1>🏉 ミニラグビー ディフェンス入門</h1>
+    <p>9人制・みんなで守る!5つのポイント</p>
+  </div>
+
+  <!-- コントロール -->
+  <div class="controls">
+    <button class="btn" id="playBtn">▶ 再生</button>
+    <button class="btn btn-secondary" id="pauseBtn">⏸ 一時停止</button>
+    <button class="btn btn-secondary" id="restartBtn">↻ 最初から</button>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="chapter-label" id="chapterLabel">0 / 7</div>
+  </div>
+
+  <!-- 音声設定 -->
+  <div class="voice-controls">
+    <label class="voice-label">🔊 音声:</label>
+    <select id="voiceSelect" class="voice-select"></select>
+    <label class="voice-label">速さ:</label>
+    <input type="range" id="rateSlider" min="1.0" max="2.0" step="0.1" value="1.0" class="rate-slider">
+    <span id="rateValue" class="rate-value">1.0x</span>
+    <button class="btn btn-mini" id="testVoiceBtn">🎤 試聴</button>
+  </div>
+
+  <!-- チャプタータブ -->
+  <div class="chapter-tabs" id="chapterTabs"></div>
+
+  <!-- ステージ -->
+  <div class="stage" id="stage">
+
+    <!-- シーン0: イントロ -->
+    <div class="scene active" data-scene="0">
+      <div class="title-card">
+        <div class="big-number">🏉</div>
+        <h2>みんなで守る、ディフェンスの基本</h2>
+        <p class="subtitle">ラグビーのディフェンスは、1人で頑張るスポーツじゃないよ。<br>チーム全員で「壁」を作って守ろう!</p>
+      </div>
+      <div class="caption">
+        <div class="caption-coach">コーチより</div>
+        <div id="caption-0">こんにちは!今日はディフェンスのコツを5つ、一緒に勉強しよう。ラグビーのディフェンスはね、1人でがんばるんじゃなくて、みんなで力を合わせて壁を作るのが大事なんだ。それじゃあ、はじめるよ!</div>
+      </div>
+    </div>
+
+    <!-- シーン1: ポイント1 タイトル -->
+    <div class="scene" data-scene="1">
+      <div class="title-card">
+        <div class="big-number">1</div>
+        <h2>面で揃ってアップする</h2>
+        <p class="subtitle">バラバラに前に出ると穴ができちゃう。<br>みんなで一緒に前へ出よう!</p>
+      </div>
+      <div class="caption">
+        <div class="caption-coach">コーチより</div>
+        <div id="caption-1">最初のポイントは「面で揃ってアップする」こと。アップっていうのは、ボールを持った相手に向かって前に出ることだよ。でもね、1人だけ早く出たり、誰かが遅れたりすると、そこに穴ができて抜かれちゃうんだ。</div>
+      </div>
+    </div>
+
+    <!-- シーン2: ポイント1 図解 -->
+    <div class="scene" data-scene="2">
+      <h3 class="scene-title">悪い例 vs 良い例</h3>
+      <div class="stacked-fields">
+        <div class="field" id="field-bad-1">
+          <div class="scene-label bad">❌ バラバラに前に出る</div>
+        </div>
+        <div class="field" id="field-good-1">
+          <div class="scene-label good">⭕ 面で揃って前に出る</div>
+        </div>
+      </div>
+      <div class="caption">
+        <div class="caption-coach">コーチより</div>
+        <div id="caption-2">見てごらん。上はバラバラに前に出ちゃってる。隙間があいてるでしょ?ここをパスで抜かれちゃうんだ。下は全員が手をつないでるみたいに、まっすぐ揃って前に出てる。これが「面でアップ」だよ。横の友達のスピードに合わせるのがコツ!</div>
+      </div>
+    </div>
+
+    <!-- シーン3: ポイント2 -->
+    <div class="scene" data-scene="3">
+      <h3 class="scene-title"><span class="scene-number">2</span>オフサイドラインを超えない</h3>
+      <div class="field" id="field-offside">
+        <div class="offside-line">
+          <div class="offside-label">オフサイドライン</div>
+        </div>
+        <div class="ruck">ラック</div>
+      </div>
+      <div class="caption">
+        <div class="caption-coach">コーチより</div>
+        <div id="caption-3">2つめのポイント。タックルやラックができたら、その一番後ろの足のところがオフサイドラインだよ。この線より前にいたら反則!アップする前に、必ず一歩下がって線の後ろからセットしよう。「下がる→セット→アップ」の順番を覚えてね。</div>
+      </div>
+    </div>
+
+    <!-- シーン4: ポイント3 ノミネート -->
+    <div class="scene" data-scene="4">
+      <h3 class="scene-title"><span class="scene-number">3</span>正面の相手をノミネート</h3>
+      <div class="field" id="field-nominate">
+        <div class="scene-label good">指さして「見た!」</div>
+      </div>
+      <div class="caption">
+        <div class="caption-coach">コーチより</div>
+        <div id="caption-4">3つめは「ノミネート」。難しい言葉だけど、簡単に言うと「自分の相手を決める」ってことだよ。セットしたら、目の前の相手を指さして「見た!」って大きな声で言おう。これをやると、誰がノーマークか一目でわかるんだ。</div>
+      </div>
+    </div>
+
+    <!-- シーン5: ポイント4 タイトル ボールに寄らない -->
+    <div class="scene" data-scene="5">
+      <div class="title-card">
+        <div class="big-number">4</div>
+        <h2>ボールに寄りすぎない</h2>
+        <p class="subtitle">ボールが気になっても、自分の相手をずっと見る!<br>みんなで寄ると、外側がガラ空きになっちゃう。</p>
+      </div>
+      <div class="caption">
+        <div class="caption-coach">コーチより</div>
+        <div id="caption-5">4つめのポイントは、とっても大事。ボールに、よりすぎないこと。ボールってね、見ていると、ついつい近寄りたくなっちゃうんだ。でもね、みんなが、ボールに寄っちゃうと、そとがわに、ノーマークの相手ができて、そこにパスを出されて、トライを取られちゃうんだよ。</div>
+      </div>
+    </div>
+
+    <!-- シーン6: ポイント4 図解 ボールに寄らない -->
+    <div class="scene" data-scene="6">
+      <h3 class="scene-title">悪い例 vs 良い例</h3>
+      <div class="stacked-fields">
+        <div class="field" id="field-bad-2">
+          <div class="scene-label bad">❌ 全員ボールに寄る</div>
+        </div>
+        <div class="field" id="field-good-2">
+          <div class="scene-label good">⭕ 自分の相手を見る</div>
+        </div>
+      </div>
+      <div class="caption">
+        <div class="caption-coach">コーチより</div>
+        <div id="caption-6">見てごらん。上は、みんなが、ボールに、よっちゃってる。そとがわの相手が、ノーマークでしょ。ここにパスが、つながったら、もうだれも、止められないんだ。下はちがうよ。一人ひとりが、自分の相手を、しっかり見てる。これなら、どこにパスが行っても、ちゃんと止められるんだ。自分の相手を、ずっと見るんだ!これが、合言葉だよ。</div>
+      </div>
+    </div>
+
+    <!-- シーン7: ポイント5 声かけ -->
+    <div class="scene" data-scene="7">
+      <h3 class="scene-title"><span class="scene-number">5</span>試合中の声かけ</h3>
+      <div class="voice-cards">
+        <div class="voice-card">
+          <div class="voice-text">セット!</div>
+          <div class="voice-when">構えるとき</div>
+        </div>
+        <div class="voice-card">
+          <div class="voice-text">アップ!</div>
+          <div class="voice-when">一緒に前に出るとき</div>
+        </div>
+        <div class="voice-card">
+          <div class="voice-text">見た!</div>
+          <div class="voice-when">自分の相手を決めるとき</div>
+        </div>
+      </div>
+      <div class="caption">
+        <div class="caption-coach">コーチより</div>
+        <div id="caption-7">5つめは、こえかけ。なんて言えばいいか、わからない人は、まずこの三つだけ、おぼえよう。セット。アップ。見た。この三つを、大きな声で言えるようになったら、もう、ディフェンスの、たつじんだよ。声を出すとね、自分も元気が出るし、みかたも、あんしんするんだ。</div>
+      </div>
+    </div>
+
+    <!-- シーン8: 良い例フルアニメーション -->
+    <div class="scene" data-scene="8">
+      <h3 class="scene-title">全部できると、こうなる!</h3>
+      <div class="field" id="field-final">
+        <div class="offside-line">
+          <div class="offside-label">オフサイドライン</div>
+        </div>
+        <div class="ruck">ラック</div>
+      </div>
+      <div class="caption">
+        <div class="caption-coach">コーチより</div>
+        <div id="caption-8">じゃあ、ぜんぶできると、どうなるか、見てみよう。まず、セット、と声をかけて、オフサイドラインのうしろで、かまえる。つぎに、見た、で、自分の相手を決める。そして、アップ、で、みんないっしょに、前に出る。ボールに、よりすぎない。どう。きれいな、かべが、できてるね。</div>
+      </div>
+    </div>
+
+    <!-- シーン9: まとめ -->
+    <div class="scene" data-scene="9">
+      <h3 class="scene-title">今日のまとめ</h3>
+      <ul class="checklist">
+        <li><span class="check">1</span><strong>面で揃ってアップ</strong> - 横の友達と一緒に前に出る</li>
+        <li><span class="check">2</span><strong>オフサイドラインを超えない</strong> - 一歩下がってからセット</li>
+        <li><span class="check">3</span><strong>正面の相手をノミネート</strong> - 指さして「見た!」</li>
+        <li><span class="check">4</span><strong>ボールに寄りすぎない</strong> - 自分の相手をずっと見る</li>
+        <li><span class="check">5</span><strong>大きな声で声かけ</strong> - セット!アップ!見た!</li>
+      </ul>
+      <div class="caption">
+        <div class="caption-coach">コーチより</div>
+        <div id="caption-9">今日はディフェンスの、いつつのポイントを、勉強したね。いっきに、ぜんぶ、できなくても、だいじょうぶ。ひとつずつ、れんしゅうして、できるように、なっていこう。つぎの試合、チームみんなで、かべを作って、相手を、止めるんだ。よし、がんばろう。</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- フッター -->
+  <div class="footer">
+    🏉 ミニラグビー ディフェンス解説<br>
+    <small>音声が出ない場合は、ブラウザの音声設定をご確認ください</small>
+  </div>
+
+</div>
+
+<script>
+  // ===== ナレーション設定 =====
+  // 音声合成で自然に聞こえるよう、句読点・改行・漢字を調整
+  const narrations = [
+    "こんにちは。今日はね、ディフェンスのコツを、いつつ、いっしょに勉強しよう。ラグビーのディフェンスはね、ひとりでがんばるんじゃなくて、みんなで力を合わせて、かべを作るのが大事なんだ。それじゃあ、はじめるよ。",
+    "さいしょのポイントは、めんで、そろって、アップすること。アップっていうのはね、ボールを持った相手にむかって、前に出ることだよ。でもね、ひとりだけ早く出たり、だれかが、おくれたりすると、そこにあなが、できて、抜かれちゃうんだ。",
+    "見てごらん。うえは、バラバラに、前に出ちゃってる。すきまが、あいてるでしょ。ここを、パスで、抜かれちゃうんだ。したは、ぜんいんが、まっすぐそろって、前に出てる。これが、めんでアップ、だよ。よこの友達のスピードに、合わせるのがコツ。",
+    "ふたつめのポイント。タックルや、ラックができたら、その、いちばんうしろの足のところが、オフサイドラインだよ。この線より前にいたら、はんそく。アップする前に、かならず、いっぽさがって、線のうしろから、セットしよう。さがる、セット、アップ、の、じゅんばんを、おぼえてね。",
+    "みっつめは、ノミネート。むずかしい言葉だけど、かんたんに言うと、自分の相手を決めるってことだよ。セットしたら、目の前の相手を、ゆびさして、みた、って大きな声で言おう。これをやるとね、だれが、ノーマークか、ひとめで、わかるんだ。",
+    "よっつめのポイントは、とっても大事。ボールに、よりすぎないこと。ボールってね、見ていると、ついつい近寄りたくなっちゃうんだ。でもね、みんなが、ボールに寄っちゃうと、そとがわに、ノーマークの相手ができて、そこにパスを出されて、トライを取られちゃうんだよ。",
+    "見てごらん。うえは、みんなが、ボールに、よっちゃってる。そとがわの相手が、ノーマークでしょ。ここにパスが、つながったら、もうだれも、とめられないんだ。したはちがうよ。ひとりひとりが、自分の相手を、しっかり見てる。これなら、どこにパスが行っても、ちゃんと、とめられるんだ。自分の相手を、ずっと、見るんだ。これが、あいことばだよ。",
+    "いつつめは、こえかけ。なんて言えばいいか、わからない人は、まずこの三つだけ、おぼえよう。セット。アップ。みた。この三つを、大きな声で言えるようになったら、もう、ディフェンスの、たつじんだよ。声を出すとね、自分も元気が出るし、みかたも、あんしんするんだ。",
+    "じゃあ、いつつ、ぜんぶできると、どうなるか、見てみよう。まず、セット、と声をかけて、オフサイドラインのうしろで、かまえる。つぎに、みた、で、自分の相手を決める。そして、アップ、で、みんないっしょに、前に出る。ボールに、よりすぎない。どう。きれいな、かべが、できてるね。",
+    "今日はね、ディフェンスの、いつつのポイントを、勉強したね。いっきに、ぜんぶ、できなくても、だいじょうぶ。ひとつずつ、れんしゅうして、できるように、なっていこう。つぎの試合、チームみんなで、かべを作って、相手を、とめるんだ。よし、がんばろう。"
+  ];
+
+  const sceneTitles = [
+    "イントロ",
+    "①面で揃う",
+    "面で揃う(図解)",
+    "②オフサイド",
+    "③ノミネート",
+    "④寄らない",
+    "寄らない(図解)",
+    "⑤声かけ",
+    "全部やってみる",
+    "まとめ"
+  ];
+
+  const totalScenes = 10;
+  let currentScene = 0;
+  let isPlaying = false;
+  let currentUtterance = null;
+  let sceneTimeout = null;
+
+  // チャプタータブ生成
+  const chapterTabs = document.getElementById('chapterTabs');
+  sceneTitles.forEach((title, i) => {
+    const tab = document.createElement('button');
+    tab.className = 'chapter-tab' + (i === 0 ? ' active' : '');
+    tab.textContent = (i + 1) + '. ' + title;
+    tab.onclick = () => goToScene(i);
+    chapterTabs.appendChild(tab);
+  });
+
+  // ===== シーン切り替え =====
+  function showScene(index) {
+    document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.chapter-tab').forEach(t => t.classList.remove('active'));
+    
+    const scene = document.querySelector(`[data-scene="${index}"]`);
+    if (scene) scene.classList.add('active');
+    
+    const tab = document.querySelectorAll('.chapter-tab')[index];
+    if (tab) {
+      tab.classList.add('active');
+      tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+    
+    document.getElementById('chapterLabel').textContent = `${index + 1} / ${totalScenes}`;
+    document.getElementById('progressFill').style.width = `${((index + 1) / totalScenes) * 100}%`;
+    
+    // シーン固有のアニメーション起動
+    setTimeout(() => animateScene(index), 100);
+  }
+
+  // ===== アニメーション =====
+  function createPlayer(field, x, y, type, label, delay = 0) {
+    const player = document.createElement('div');
+    player.className = `player ${type}`;
+    player.style.left = `${x}%`;
+    player.style.top = `${y}%`;
+    player.style.transform = 'translate(-50%, -50%)';
+    if (label) player.textContent = label;
+    if (delay > 0) {
+      player.style.opacity = '0';
+      setTimeout(() => { player.style.opacity = '1'; }, delay);
+    }
+    field.appendChild(player);
+    return player;
+  }
+
+  function clearField(field) {
+    field.querySelectorAll('.player, .nominate-line, .speech-bubble, .arrow').forEach(el => el.remove());
+  }
+
+  function animateScene(index) {
+    if (index === 2) animateScene2();
+    if (index === 3) animateScene3();
+    if (index === 4) animateScene4();
+    if (index === 6) animateScene6_BallChase();
+    if (index === 8) animateScene8_Final();
+  }
+
+  // シーン2: 悪い例 vs 良い例 (9人制)
+  function animateScene2() {
+    const fieldBad = document.getElementById('field-bad-1');
+    const fieldGood = document.getElementById('field-good-1');
+    if (!fieldBad || !fieldGood) return;
+    clearField(fieldBad);
+    clearField(fieldGood);
+
+    const numPlayers = 9;
+    // 攻撃9人を左側に縦一列に近い形で配置
+    const offenseY = [];
+    for (let i = 0; i < numPlayers; i++) {
+      const y = 12 + (i * (76 / (numPlayers - 1)));
+      offenseY.push(y);
+      createPlayer(fieldBad, 22, y, 'offense');
+      createPlayer(fieldGood, 22, y, 'offense');
+    }
+    // 中央の選手がボールキャリア
+    const ballIdx = Math.floor(numPlayers / 2);
+    fieldBad.querySelectorAll('.player.offense')[ballIdx].classList.add('with-ball');
+    fieldGood.querySelectorAll('.player.offense')[ballIdx].classList.add('with-ball');
+
+    // 悪い例: バラバラ
+    const badDef = [];
+    const goodDef = [];
+    for (let i = 0; i < numPlayers; i++) {
+      const y = 12 + (i * (76 / (numPlayers - 1)));
+      badDef.push(createPlayer(fieldBad, 75, y, 'defense'));
+      goodDef.push(createPlayer(fieldGood, 75, y, 'defense'));
+    }
+
+    // バラバラに前進する位置(悪い例)
+    const badPositions = [55, 70, 50, 72, 48, 70, 52, 68, 55];
+    setTimeout(() => {
+      badDef.forEach((p, i) => {
+        p.style.left = badPositions[i] + '%';
+      });
+    }, 500);
+
+    // 揃って前進(良い例)
+    setTimeout(() => {
+      goodDef.forEach(p => p.style.left = '55%');
+    }, 500);
+
+    // ループ
+    const loop = setInterval(() => {
+      // リセット
+      badDef.forEach((p, i) => {
+        p.style.left = '75%';
+        p.style.top = (12 + i * (76 / (numPlayers - 1))) + '%';
+      });
+      goodDef.forEach((p, i) => {
+        p.style.left = '75%';
+        p.style.top = (12 + i * (76 / (numPlayers - 1))) + '%';
+      });
+      setTimeout(() => {
+        if (!fieldBad.isConnected) { clearInterval(loop); return; }
+        badDef.forEach((p, i) => p.style.left = badPositions[i] + '%');
+        goodDef.forEach(p => p.style.left = '55%');
+      }, 200);
+    }, 3000);
+
+    fieldBad._loop = loop;
+  }
+
+  // シーン3: オフサイド (9人制)
+  function animateScene3() {
+    const field = document.getElementById('field-offside');
+    if (!field) return;
+    clearField(field);
+    
+    // ディフェンス9人(線の後ろ・縦に並ぶ)
+    const numPlayers = 9;
+    for (let i = 0; i < numPlayers; i++) {
+      const y = 12 + (i * (76 / (numPlayers - 1)));
+      createPlayer(field, 60, y, 'defense');
+    }
+
+    // 矢印で「下がる」を示す
+    const arrow = document.createElement('div');
+    arrow.className = 'arrow';
+    arrow.textContent = '← 下がる';
+    arrow.style.left = '70%';
+    arrow.style.top = '5%';
+    field.appendChild(arrow);
+    setTimeout(() => arrow.classList.add('show'), 600);
+  }
+
+  // シーン4: ノミネート (9人制)
+  function animateScene4() {
+    const field = document.getElementById('field-nominate');
+    if (!field) return;
+    clearField(field);
+    
+    const numPlayers = 9;
+    // 攻撃9人
+    for (let i = 0; i < numPlayers; i++) {
+      const y = 12 + (i * (76 / (numPlayers - 1)));
+      const p = createPlayer(field, 30, y, 'offense', '', 0);
+      if (i === Math.floor(numPlayers / 2)) p.classList.add('with-ball');
+    }
+
+    // ディフェンス9人
+    for (let i = 0; i < numPlayers; i++) {
+      const y = 12 + (i * (76 / (numPlayers - 1)));
+      createPlayer(field, 70, y, 'defense');
+    }
+
+    // ノミネートライン(全員分)
+    setTimeout(() => {
+      for (let i = 0; i < numPlayers; i++) {
+        const y = 12 + (i * (76 / (numPlayers - 1)));
+        const line = document.createElement('div');
+        line.className = 'nominate-line';
+        line.style.left = '30%';
+        line.style.top = y + '%';
+        line.style.width = '40%';
+        field.appendChild(line);
+        setTimeout(() => line.classList.add('show'), 100 + i * 150);
+      }
+
+      // 代表的なスピーチバブル(3つだけ・全員分は煩雑)
+      const bubblePositions = [20, 50, 80];
+      bubblePositions.forEach((y, i) => {
+        const bubble = document.createElement('div');
+        bubble.className = 'speech-bubble';
+        bubble.textContent = '見た!';
+        bubble.style.left = '72%';
+        bubble.style.top = (y - 8) + '%';
+        field.appendChild(bubble);
+        setTimeout(() => bubble.classList.add('show'), 600 + i * 300);
+      });
+    }, 500);
+  }
+
+  // シーン6: ボールに寄らない (9人制・ストーリー型)
+  function animateScene6_BallChase() {
+    const fieldBad = document.getElementById('field-bad-2');
+    const fieldGood = document.getElementById('field-good-2');
+    if (!fieldBad || !fieldGood) return;
+    clearField(fieldBad);
+    clearField(fieldGood);
+
+    const numPlayers = 9;
+    // 攻撃9人を縦一列に配置(両フィールド共通)
+    const offenseY = [];
+    for (let i = 0; i < numPlayers; i++) {
+      const y = 10 + (i * (78 / (numPlayers - 1)));
+      offenseY.push(y);
+    }
+    // ボールキャリアは内側(上から3番目あたり)
+    const ballCarrierIdx = 2;
+    
+    offenseY.forEach((y, i) => {
+      const off1 = createPlayer(fieldBad, 25, y, 'offense');
+      const off2 = createPlayer(fieldGood, 25, y, 'offense');
+      if (i === ballCarrierIdx) {
+        off1.classList.add('with-ball');
+        off2.classList.add('with-ball');
+      }
+    });
+
+    // ディフェンス9人を初期配置(両フィールド共通)
+    const badDefs = [];
+    const goodDefs = [];
+    offenseY.forEach((y, i) => {
+      badDefs.push(createPlayer(fieldBad, 75, y, 'defense'));
+      goodDefs.push(createPlayer(fieldGood, 75, y, 'defense'));
+    });
+
+    // === 悪い例のアニメーション ===
+    // フェーズ1(0.8秒〜): ディフェンス6人がボールキャリアに密集、残り3人も密集側に引き寄せられる
+    setTimeout(() => {
+      const ballX = 25;
+      const ballY = offenseY[ballCarrierIdx];
+      // 6人がボールキャリアにぴったり密集(団子状態)
+      // ボールキャリアを取り囲むように配置
+      const cluster = [
+        {dx: 8,  dy: -8},   // 右上
+        {dx: 12, dy: 0},    // 右
+        {dx: 8,  dy: 8},    // 右下
+        {dx: 14, dy: -4},   // やや右上
+        {dx: 14, dy: 6},    // やや右下
+        {dx: 18, dy: 2}     // さらに右
+      ];
+      for (let i = 0; i < 6; i++) {
+        badDefs[i].style.left = (ballX + cluster[i].dx) + '%';
+        badDefs[i].style.top = (ballY + cluster[i].dy) + '%';
+      }
+      // 残り3人(7〜9番目)も密集している味方の方へ引き寄せられる
+      // ボールキャリアの少し下〜やや離れた位置(でも自分の正面の相手からは離れている)
+      const stragglers = [
+        {x: 38, y: ballY + 14},  // 7番目
+        {x: 42, y: ballY + 18},  // 8番目
+        {x: 46, y: ballY + 22}   // 9番目
+      ];
+      for (let i = 6; i < numPlayers; i++) {
+        badDefs[i].style.left = stragglers[i - 6].x + '%';
+        badDefs[i].style.top = stragglers[i - 6].y + '%';
+      }
+    }, 800);
+
+    // フェーズ2(2.5秒〜): 「⚠️ノーマーク!」表示&外側の攻撃選手強調
+    setTimeout(() => {
+      const offs = fieldBad.querySelectorAll('.player.offense');
+      // 外側(下方向)の3人がノーマーク
+      for (let i = numPlayers - 3; i < numPlayers; i++) {
+        offs[i].classList.add('highlight');
+      }
+      const bubble = document.createElement('div');
+      bubble.className = 'speech-bubble';
+      bubble.textContent = '⚠️ ノーマーク!';
+      bubble.style.left = '15%';
+      bubble.style.top = '88%';
+      bubble.style.background = '#ff4757';
+      bubble.style.color = 'white';
+      fieldBad.appendChild(bubble);
+      setTimeout(() => bubble.classList.add('show'), 100);
+    }, 2500);
+
+    // フェーズ3(4秒〜): パスが外側の選手に通り、トライへ
+    setTimeout(() => {
+      const offs = fieldBad.querySelectorAll('.player.offense');
+      // ボールキャリアからボールを消し、外側の選手にボールを渡す
+      offs[ballCarrierIdx].classList.remove('with-ball');
+      offs[numPlayers - 1].classList.add('with-ball');
+      // 外側の選手がトライエリアに向かって走る
+      offs[numPlayers - 1].style.left = '90%';
+      // パス軌跡(矢印)
+      const arrow = document.createElement('div');
+      arrow.className = 'arrow';
+      arrow.textContent = '→ パス';
+      arrow.style.left = '40%';
+      arrow.style.top = '50%';
+      arrow.style.color = 'white';
+      fieldBad.appendChild(arrow);
+      setTimeout(() => arrow.classList.add('show'), 100);
+    }, 4000);
+
+    // フェーズ4(5.5秒〜): 「トライされた!」
+    setTimeout(() => {
+      const tryBubble = document.createElement('div');
+      tryBubble.className = 'speech-bubble';
+      tryBubble.textContent = '💥 トライされた!';
+      tryBubble.style.left = '70%';
+      tryBubble.style.top = '88%';
+      tryBubble.style.background = '#ff4757';
+      tryBubble.style.color = 'white';
+      fieldBad.appendChild(tryBubble);
+      setTimeout(() => tryBubble.classList.add('show'), 100);
+    }, 5500);
+
+    // === 良い例のアニメーション ===
+    // 全員ノミネートライン表示
+    setTimeout(() => {
+      offenseY.forEach((y, i) => {
+        const line = document.createElement('div');
+        line.className = 'nominate-line';
+        line.style.left = '25%';
+        line.style.top = y + '%';
+        line.style.width = '50%';
+        fieldGood.appendChild(line);
+        setTimeout(() => line.classList.add('show'), 100 + i * 120);
+      });
+      // 「OK」マークを表示
+      setTimeout(() => {
+        const okBubble = document.createElement('div');
+        okBubble.className = 'speech-bubble';
+        okBubble.textContent = '✓ 全員マーク';
+        okBubble.style.left = '40%';
+        okBubble.style.top = '90%';
+        okBubble.style.background = '#2ed573';
+        okBubble.style.color = 'white';
+        fieldGood.appendChild(okBubble);
+        setTimeout(() => okBubble.classList.add('show'), 100);
+      }, 1500);
+    }, 800);
+  }
+
+  // シーン8: 全部やってみる (9人制)
+  function animateScene8_Final() {
+    const field = document.getElementById('field-final');
+    if (!field) return;
+    clearField(field);
+
+    const numPlayers = 9;
+    // 攻撃9人
+    const offs = [];
+    for (let i = 0; i < numPlayers; i++) {
+      const y = 12 + (i * (76 / (numPlayers - 1)));
+      offs.push(createPlayer(field, 25, y, 'offense'));
+    }
+    offs[Math.floor(numPlayers / 2)].classList.add('with-ball');
+
+    // ディフェンス9人(オフサイドライン後ろ)
+    const defs = [];
+    for (let i = 0; i < numPlayers; i++) {
+      const y = 12 + (i * (76 / (numPlayers - 1)));
+      defs.push(createPlayer(field, 60, y, 'defense'));
+    }
+
+    // ステップ1: セット!
+    setTimeout(() => {
+      const bubble = document.createElement('div');
+      bubble.className = 'speech-bubble';
+      bubble.textContent = 'セット!';
+      bubble.style.left = '60%';
+      bubble.style.top = '3%';
+      field.appendChild(bubble);
+      setTimeout(() => bubble.classList.add('show'), 100);
+    }, 500);
+
+    // ステップ2: 見た!(ノミネートライン全員分)
+    setTimeout(() => {
+      for (let i = 0; i < numPlayers; i++) {
+        const line = document.createElement('div');
+        line.className = 'nominate-line';
+        const y = 12 + (i * (76 / (numPlayers - 1)));
+        line.style.left = '25%';
+        line.style.top = y + '%';
+        line.style.width = '35%';
+        field.appendChild(line);
+        setTimeout(() => line.classList.add('show'), i * 100);
+      }
+      const bubble = document.createElement('div');
+      bubble.className = 'speech-bubble';
+      bubble.textContent = '見た!';
+      bubble.style.left = '60%';
+      bubble.style.top = '92%';
+      field.appendChild(bubble);
+      setTimeout(() => bubble.classList.add('show'), 100);
+    }, 2500);
+
+    // ステップ3: アップ!(全員一緒に前進)
+    setTimeout(() => {
+      defs.forEach(p => p.style.left = '45%');
+      const bubble = document.createElement('div');
+      bubble.className = 'speech-bubble';
+      bubble.textContent = 'アップ!';
+      bubble.style.left = '45%';
+      bubble.style.top = '3%';
+      field.appendChild(bubble);
+      setTimeout(() => bubble.classList.add('show'), 100);
+    }, 4500);
+  }
+
+  // ===== 音声 =====
+  let voicesLoaded = false;
+  let preferredVoice = null;
+  let userSelectedRate = 1.0;
+  let availableJaVoices = [];
+
+  function loadVoices() {
+    const voices = window.speechSynthesis.getVoices();
+    availableJaVoices = voices.filter(v => v.lang === 'ja-JP' || v.lang.startsWith('ja'));
+    
+    // 自然さで優先順位をつけて選択
+    const priorityList = [
+      v => v.name.includes('Google') && v.name.includes('日本'),
+      v => v.name.includes('Google') && v.lang.startsWith('ja'),
+      v => v.name.includes('Kyoko'),
+      v => v.name.includes('Otoya'),
+      v => v.name.includes('Nanami'),
+      v => v.name.includes('Ayumi'),
+      v => v.name.includes('Mizuki'),
+      v => v.name.includes('Ichiro'),
+      v => v.name.includes('Sayaka'),
+      v => v.name.includes('Haruka'),
+      v => v.lang === 'ja-JP',
+      v => v.lang.startsWith('ja')
+    ];
+    
+    for (const matcher of priorityList) {
+      const found = availableJaVoices.find(matcher);
+      if (found) {
+        preferredVoice = found;
+        break;
+      }
+    }
+    
+    voicesLoaded = true;
+    populateVoiceSelect();
+  }
+
+  function populateVoiceSelect() {
+    const select = document.getElementById('voiceSelect');
+    if (!select) return;
+    select.innerHTML = '';
+    
+    if (availableJaVoices.length === 0) {
+      const opt = document.createElement('option');
+      opt.textContent = '日本語音声がありません';
+      select.appendChild(opt);
+      select.disabled = true;
+      return;
+    }
+    
+    availableJaVoices.forEach((voice, i) => {
+      const opt = document.createElement('option');
+      opt.value = i;
+      // わかりやすい名前にする
+      let displayName = voice.name
+        .replace('Microsoft ', '')
+        .replace('Google ', 'Google ')
+        .replace(' - Japanese (Japan)', '')
+        .replace(' Desktop', '');
+      // 推奨マーク
+      if (voice === preferredVoice) {
+        displayName = '⭐ ' + displayName + ' (推奨)';
+      }
+      opt.textContent = displayName;
+      if (voice === preferredVoice) opt.selected = true;
+      select.appendChild(opt);
+    });
+    
+    select.onchange = () => {
+      preferredVoice = availableJaVoices[parseInt(select.value)];
+    };
+  }
+
+  if ('speechSynthesis' in window) {
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  } else {
+    const select = document.getElementById('voiceSelect');
+    if (select) {
+      select.innerHTML = '<option>音声非対応のブラウザです</option>';
+      select.disabled = true;
+    }
+  }
+
+  // 速度スライダー
+  const rateSlider = document.getElementById('rateSlider');
+  const rateValue = document.getElementById('rateValue');
+  if (rateSlider) {
+    rateSlider.oninput = () => {
+      userSelectedRate = parseFloat(rateSlider.value);
+      rateValue.textContent = userSelectedRate.toFixed(1) + 'x';
+    };
+  }
+
+  // 試聴ボタン
+  const testBtn = document.getElementById('testVoiceBtn');
+  if (testBtn) {
+    testBtn.onclick = () => {
+      speak('こんにちは。今日は、ディフェンスのコツを、いっしょに勉強しよう。', null);
+    };
+  }
+
+  function speak(text, onEnd) {
+    if (!('speechSynthesis' in window)) {
+      if (onEnd) setTimeout(onEnd, text.length * 80);
+      return;
+    }
+    
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'ja-JP';
+    utterance.rate = userSelectedRate;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+    
+    if (preferredVoice) utterance.voice = preferredVoice;
+    
+    utterance.onend = () => {
+      if (onEnd) onEnd();
+    };
+    utterance.onerror = () => {
+      if (onEnd) onEnd();
+    };
+    
+    currentUtterance = utterance;
+    window.speechSynthesis.speak(utterance);
+  }
+
+  // ===== 再生制御 =====
+  function playScene(index) {
+    if (index >= totalScenes) {
+      isPlaying = false;
+      return;
+    }
+    showScene(index);
+    currentScene = index;
+    
+    if (isPlaying) {
+      speak(narrations[index], () => {
+        if (isPlaying) {
+          // ナレーション後、次のシーンへ
+          sceneTimeout = setTimeout(() => {
+            if (isPlaying) playScene(index + 1);
+          }, 800);
+        }
+      });
+    }
+  }
+
+  function play() {
+    isPlaying = true;
+    document.getElementById('playBtn').disabled = true;
+    document.getElementById('pauseBtn').disabled = false;
+    playScene(currentScene);
+  }
+
+  function pause() {
+    isPlaying = false;
+    document.getElementById('playBtn').disabled = false;
+    document.getElementById('pauseBtn').disabled = true;
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    if (sceneTimeout) clearTimeout(sceneTimeout);
+  }
+
+  function restart() {
+    pause();
+    currentScene = 0;
+    showScene(0);
+  }
+
+  function goToScene(index) {
+    pause();
+    currentScene = index;
+    showScene(index);
+  }
+
+  document.getElementById('playBtn').onclick = play;
+  document.getElementById('pauseBtn').onclick = pause;
+  document.getElementById('restartBtn').onclick = restart;
+
+  // 初期表示
+  showScene(0);
+  document.getElementById('pauseBtn').disabled = true;
+
+</script>
+</body>
+</html>
